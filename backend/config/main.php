@@ -1,18 +1,28 @@
 <?php
+
 $params = array_merge(
-    require(__DIR__ . '/../../common/config/params.php'),
-    require(__DIR__ . '/../../common/config/params-local.php'),
-    require(__DIR__ . '/params.php'),
-    require(__DIR__ . '/params-local.php')
+        require(__DIR__ . '/../../common/config/params.php'), require(__DIR__ . '/../../common/config/params-local.php'), require(__DIR__ . '/params.php'), require(__DIR__ . '/params-local.php')
 );
 
 return [
     'id' => 'backend',
     'homeUrl' => '/admin',
+    'defaultRoute' => 'dashboard',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [
+        'dashboard' => [
+            'class' => 'yeesoft\dashboard\DashboardModule',
+            'widgets' => [
+                'yeesoft\post\widgets\dashboard\PostWidget',
+                'yeesoft\comment\widgets\dashboard\CommentWidget',
+            ],
+            'infoBoxes' => [
+                'yeesoft\post\widgets\dashboard\PostInfoBox',
+                'yeesoft\comment\widgets\dashboard\CommentInfoBox',
+            ],
+        ],
         'settings' => [
             'class' => 'yeesoft\settings\SettingsModule',
         ],
@@ -53,30 +63,32 @@ return [
         'assetManager' => [
             'bundles' => [
                 'yii\bootstrap\BootstrapAsset' => [
-                    'sourcePath' => '@yeesoft/yii2-yee-core/assets/theme/bootswatch/custom',
-                    'css' => ['bootstrap.css']
+                    'sourcePath' => '@yeesoft/yee-theme/dist',
+                    'css' => ['css/theme.css']
+                ],
+                'yii\bootstrap\BootstrapPluginAsset' => [
+                    'sourcePath' => '@yeesoft/yee-theme/dist',
+                    'js' => ['js/bootstrap.min.js']
                 ],
             ],
         ],
         'urlManager' => [
             'class' => 'yeesoft\web\MultilingualUrlManager',
-            'showScriptName' => false,
-            'enablePrettyUrl' => true,
-            'multilingualRules' => false,
-            'rules' => array(
+            'rules' => [
                 //add here local frontend controllers
                 //'<controller:(test)>' => '<controller>/index',
                 //'<controller:(test)>/<id:\d+>' => '<controller>/view',
                 //'<controller:(test)>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
                 //'<controller:(test)>/<action:\w+>' => '<controller>/<action>',
-                //yee cms and other modules routes
-                '<module:\w+>/' => '<module>/default/index',
-                '<module:\w+>/<action:\w+>/<id:\d+>' => '<module>/default/<action>',
-                '<module:\w+>/<action:(create)>' => '<module>/default/<action>',
-                '<module:\w+>/<controller:\w+>' => '<module>/<controller>/index',
-                '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>' => '<module>/<controller>/<action>',
-                '<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>',
-            )
+                //YeeCMS and other modules routes:
+                '<language:([a-zA-Z-]{2,5})?>/' => 'dashboard/default/index',
+                '<language:([a-zA-Z-]{2,5})?>/<module:\w+>/' => '<module>/default/index',
+                '<language:([a-zA-Z-]{2,5})?>/<module:\w+>/<action:\w+>/<id:\d+>' => '<module>/default/<action>',
+                '<language:([a-zA-Z-]{2,5})?>/<module:\w+>/<action:(create)>' => '<module>/default/<action>',
+                '<language:([a-zA-Z-]{2,5})?>/<module:\w+>/<controller:\w+>' => '<module>/<controller>/index',
+                '<language:([a-zA-Z-]{2,5})?>/<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>' => '<module>/<controller>/<action>',
+                '<language:([a-zA-Z-]{2,5})?>/<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>',
+            ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -88,7 +100,7 @@ return [
             ],
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => '/dashboard/default/error',
         ],
     ],
     'params' => $params,
